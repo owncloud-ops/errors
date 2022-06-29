@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	"github.com/webhippie/errors/pkg/config"
+	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 )
 
 var (
@@ -45,12 +45,11 @@ func Load(cfg *config.Config) *template.Template {
 			embeddedTemplates,
 			p,
 		)
-
 		if err != nil {
 			return err
 		}
 
-		tpls.New(
+		_, _ = tpls.New(
 			strings.TrimPrefix(
 				d.Name(),
 				"dist/",
@@ -61,7 +60,6 @@ func Load(cfg *config.Config) *template.Template {
 
 		return nil
 	})
-
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -93,12 +91,11 @@ func Load(cfg *config.Config) *template.Template {
 			content, err := ioutil.ReadFile(
 				p,
 			)
-
 			if err != nil {
 				return err
 			}
 
-			tpls.New(
+			_, _ = tpls.New(
 				strings.TrimPrefix(
 					strings.TrimPrefix(
 						d.Name(),
@@ -112,7 +109,6 @@ func Load(cfg *config.Config) *template.Template {
 
 			return nil
 		})
-
 		if err != nil {
 			log.Warn().
 				Err(err).

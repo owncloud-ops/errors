@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/webhippie/errors/pkg/config"
-	"github.com/webhippie/errors/pkg/errors"
-	"github.com/webhippie/errors/pkg/model"
-	"github.com/webhippie/errors/pkg/templates"
+	"github.owncloud.com/owncloud-ops/errors/pkg/config"
+	"github.owncloud.com/owncloud-ops/errors/pkg/errors"
+	"github.owncloud.com/owncloud-ops/errors/pkg/model"
+	"github.owncloud.com/owncloud-ops/errors/pkg/templates"
 )
 
 // General is used to handle all error pages.
@@ -50,7 +50,7 @@ func General(cfg *config.Config) http.HandlerFunc {
 				Str("template", file).
 				Msg("Failed to execute template")
 
-			io.WriteString(w, http.StatusText(code))
+			_, _ = io.WriteString(w, http.StatusText(code))
 		}
 	}
 }
@@ -58,7 +58,6 @@ func General(cfg *config.Config) http.HandlerFunc {
 func detectCode(req *http.Request) int {
 	if val := req.Header.Get("X-Code"); val != "" {
 		code, err := strconv.Atoi(val)
-
 		if err != nil {
 			code = 404
 
@@ -82,7 +81,6 @@ func detectCode(req *http.Request) int {
 		)
 
 		code, err := strconv.Atoi(val)
-
 		if err != nil {
 			code = 404
 
@@ -134,7 +132,6 @@ func detectFormat(req *http.Request) string {
 func parseFormat(format string) string {
 	mediaType, _, _ := mime.ParseMediaType(format)
 	cext, err := mime.ExtensionsByType(mediaType)
-
 	if err != nil {
 		log.Error().
 			Err(err).

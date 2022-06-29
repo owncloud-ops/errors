@@ -6,7 +6,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/webhippie/errors/pkg/version"
+	"github.owncloud.com/owncloud-ops/errors/pkg/version"
 )
 
 const (

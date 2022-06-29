@@ -35,5 +35,3 @@
 508: The server detected an infinite loop while processing the request.
 510: Extensions to the request are required for the server to fulfil it.
 511: The client needs to authenticate to gain network access.
-
-...

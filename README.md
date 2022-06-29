@@ -1,58 +1,71 @@
-# Errors
+# errors
 
-[![Current Tag](https://img.shields.io/github/v/tag/webhippie/errors?sort=semver)](https://github.com/webhippie/errors) [![Build Status](https://github.com/webhippie/errors/actions/workflows/general.yml/badge.svg)](https://github.com/webhippie/errors/actions) [![Join the Matrix chat at https://matrix.to/#/#webhippie:matrix.org](https://img.shields.io/badge/matrix-%23webhippie-7bc9a4.svg)](https://matrix.to/#/#webhippie:matrix.org) [![Docker Size](https://img.shields.io/docker/image-size/webhippie/errors/latest)](https://hub.docker.com/r/webhippie/errors) [![Docker Pulls](https://img.shields.io/docker/pulls/webhippie/errors)](https://hub.docker.com/r/webhippie/errors) [![Go Reference](https://pkg.go.dev/badge/github.com/webhippie/errors.svg)](https://pkg.go.dev/github.com/webhippie/errors) [![Go Report Card](https://goreportcard.com/badge/github.com/webhippie/errors)](https://goreportcard.com/report/github.com/webhippie/errors) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8dbcb22838214efd940e75d2cffc31bc)](https://www.codacy.com/gh/webhippie/errors/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webhippie/errors&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://drone.owncloud.com/api/badges/owncloud-ops/errors/status.svg)](https://drone.owncloud.com/owncloud-ops/errors)
 
-This project simply provides customizeable default and error pages for your
-Nginx Ingress Controller on a Kubernetes cluster. By default it already ships
-with simple but nice pages for standard errors.
+This service provides handlers for a default backend which can be used within Kubernetes Ingress controllers like Nginx. It displayes nice error pages and it is customizable on all aspects.
 
-## Install
+## Environment Variables
 
-You can download prebuilt binaries from our [GitHub releases][releases], or you
-can use our Docker images published on [Docker Hub][dockerhub] or [Quay][quay].
-If you need further guidance how to install this take a look at our
-[documentation][docs].
+```Shell
+# Path to optional config file
+ERRORS_CONFIG_FILE=
+# Set logging level
+ERRORS_LOG_LEVEL=info
+#Enable colored logging
+ERRORS_LOG_COLOR=true
+# Enable pretty logging
+ERRORS_LOG_PRETTY=true
 
-## Development
+# Address to bind the metrics
+ERRORS_METRICS_ADDR=0.0.0.0:8081
+# Token to make metrics secure
+ERRORS_METRICS_TOKEN=
 
-Make sure you have a working Go environment, for further reference or a guide
-take a look at the [install instructions][golang]. This project requires
-Go >= v1.17, at least that's the version we are using.
+# Address to bind the server
+ERRORS_SERVER_ADDR=0.0.0.0:8080
+# Enable pprof debugging
+ERRORS_SERVER_PPROF=false
+# Root path of the server
+ERRORS_SERVER_ROOT=/
+# External access to server
+ERRORS_SERVER_HOST=http://localhost:8080
+# Path to cert for SSL encryption
+ERRORS_SERVER_CERT=
+# Path to key for SSL encryption
+ERRORS_SERVER_KEY=
+# Use strict SSL curves
+ERRORS_SERVER_STRICT_CURVES=false
+# Use strict SSL ciphers
+ERRORS_SERVER_STRICT_CIPHERS=false
+# Folder for custom templates
+ERRORS_SERVER_TEMPLATES=
+# Path for overriding errors
+ERRORS_SERVER_ERRORS=
+```
 
-```console
-git clone https://github.com/webhippie/errors.git
+## Ports
+
+- 8080
+- 8081
+
+## Build
+
+Make sure you have a working Go environment, for further reference or a guide take a look at the [install instructions](https://golang.org/doc/install.html). This project requires Go >= v1.18.
+
+```Shell
+git clone https://github.owncloud.com/owncloud-ops/errors.git
 cd errors
 
 make generate build
-
-./bin/errors -h
+./bin/errors --help
 ```
 
-## Security
+To build the container use:
 
-If you find a security issue please contact
-[thomas@webhippie.de](mailto:thomas@webhippie.de) first.
-
-## Contributing
-
-Fork -> Patch -> Push -> Pull Request
-
-## Authors
-
--   [Thomas Boerger](https://github.com/tboerger)
+```Shell
+docker build -f Dockerfile -t errors:latest .
+```
 
 ## License
 
-Apache-2.0
-
-## Copyright
-
-```console
-Copyright (c) 2018 Thomas Boerger <thomas@webhippie.de>
-```
-
-[releases]: https://github.com/webhippie/errors/releases
-[dockerhub]: https://hub.docker.com/r/webhippie/errors/tags/
-[quay]: https://quay.io/repository/webhippie/errors?tab=tags
-[docs]: https://webhippie.github.io/errors/#getting-started
-[golang]: http://golang.org/doc/install.html
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.

@@ -1,192 +1,97 @@
-include .bingo/Variables.mk
+# renovate: datasource=github-releases depName=mvdan/gofumpt
+GOFUMPT_PACKAGE_VERSION := v0.3.1
+# renovate: datasource=github-releases depName=golangci/golangci-lint
+GOLANGCI_LINT_PACKAGE_VERSION := v1.46.2
 
 SHELL := bash
 NAME := errors
-IMPORT := github.com/webhippie/$(NAME)
-BIN := bin
+IMPORT := github.com/owncloud-ops/$(NAME)
 DIST := dist
+DIST_DIRS := $(DIST)
 
-ifeq ($(OS), Windows_NT)
-	EXECUTABLE := $(NAME).exe
-	UNAME := Windows
-else
-	EXECUTABLE := $(NAME)
-	UNAME := $(shell uname -s)
-endif
-
-GOBUILD ?= CGO_ENABLED=0 go build
+GO ?= go
+CWD ?= $(shell pwd)
 PACKAGES ?= $(shell go list ./...)
 SOURCES ?= $(shell find . -name "*.go" -type f)
-GENERATE ?= $(PACKAGES)
+
+GOFUMPT_PACKAGE ?= mvdan.cc/gofumpt@$(GOFUMPT_PACKAGE_VERSION)
+GOLANGCI_LINT_PACKAGE ?= github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_PACKAGE_VERSION)
+XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
+
+GENERATE ?=
+XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
+XGO_VERSION := go-1.18.x
+XGO_TARGETS ?= linux/amd64
 
 TAGS ?= netgo
 
-ifndef OUTPUT
-	ifeq ($(GITHUB_REF_TYPE), tag)
-		OUTPUT ?= $(subst v,,$(GITHUB_REF_NAME))
-	else
-		OUTPUT ?= testing
-	endif
-endif
-
 ifndef VERSION
-	ifeq ($(GITHUB_REF_TYPE), tag)
-		VERSION ?= $(subst v,,$(GITHUB_REF_NAME))
+	ifneq ($(DRONE_TAG),)
+		VERSION ?= $(subst v,,$(DRONE_TAG))
 	else
 		VERSION ?= $(shell git rev-parse --short HEAD)
 	endif
 endif
 
 ifndef DATE
-	DATE := $(shell date -u '+%Y%m%d')
+	DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%S%z")
 endif
 
-ifndef SHA
-	SHA := $(shell git rev-parse --short HEAD)
-endif
-
-LDFLAGS += -s -w -extldflags "-static" -X "$(IMPORT)/pkg/version.String=$(VERSION)" -X "$(IMPORT)/pkg/version.Revision=$(SHA)" -X "$(IMPORT)/pkg/version.Date=$(DATE)"
-GCFLAGS += all=-N -l
+LDFLAGS += -s -w -X "$(IMPORT)/pkg/version.String=$(VERSION)" -X "$(IMPORT)/pkg/version.Date=$(DATE)"
 
 .PHONY: all
 all: build
 
-.PHONY: sync
-sync:
-	go mod download
-
 .PHONY: clean
 clean:
-	go clean -i ./...
-	rm -rf $(BIN) $(DIST)
+	$(GO) clean -i ./...
+	rm -rf $(DIST_DIRS)
 
 .PHONY: fmt
 fmt:
-	gofmt -s -w $(SOURCES)
+	$(GO) run $(GOFUMPT_PACKAGE) -extra -w $(SOURCES)
 
-.PHONY: vet
-vet:
-	go vet $(PACKAGES)
-
-.PHONY: staticcheck
-staticcheck: $(STATICCHECK)
-	$(STATICCHECK) -tags '$(TAGS)' $(PACKAGES)
+.PHONY: golangci-lint
+golangci-lint:
+	$(GO) run $(GOLANGCI_LINT_PACKAGE) run
 
 .PHONY: lint
-lint: $(GOLINT)
-	for PKG in $(PACKAGES); do $(GOLINT) -set_exit_status $$PKG || exit 1; done;
+lint: golangci-lint
 
 .PHONY: generate
 generate:
 	go generate $(GENERATE)
 
-.PHONY: changelog
-changelog: $(CALENS)
-	$(CALENS) >| CHANGELOG.md
-
 .PHONY: test
 test:
-	go test -coverprofile coverage.out $(PACKAGES)
-
-.PHONY: install
-install: $(SOURCES)
-	go install -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' ./cmd/$(NAME)
+	$(GO) test -v -coverprofile coverage.out $(PACKAGES)
 
 .PHONY: build
-build: $(BIN)/$(EXECUTABLE)
+build: $(DIST)/$(NAME)
 
-$(BIN)/$(EXECUTABLE): $(SOURCES)
-	$(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
+$(DIST)/$(NAME): $(SOURCES)
+	$(GO) build -v -tags '$(TAGS)' -ldflags '-extldflags "-static" $(LDFLAGS)' -o $@ ./cmd/$(NAME)
 
-$(BIN)/$(EXECUTABLE)-debug: $(SOURCES)
-	$(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -gcflags '$(GCFLAGS)' -o $@ ./cmd/$(NAME)
+$(DIST_DIRS):
+	mkdir -p $(DIST_DIRS)
+
+.PHONY: xgo
+xgo: | $(DIST_DIRS)
+	$(GO) run $(XGO_PACKAGE) -go $(XGO_VERSION) -v -ldflags '-extldflags "-static" $(LDFLAGS)' -tags '$(TAGS)' -targets '$(XGO_TARGETS)' -out $(NAME) --pkg cmd/$(NAME) .
+	cp /build/* $(CWD)/$(DIST)
+	ls -l $(CWD)/$(DIST)
+
+.PHONY: checksum
+checksum:
+	cd $(DIST); $(foreach file,$(wildcard $(DIST)/$(NAME)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
+	ls -l $(CWD)/$(DIST)
 
 .PHONY: release
-release: $(DIST) release-linux release-darwin release-windows release-checksum
+release: xgo checksum
 
-$(DIST):
-	mkdir -p $(DIST)
-
-.PHONY: release-linux
-release-linux: $(DIST) \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-386 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-amd64 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-5 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-6 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-7 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm64 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips64 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mipsle \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips64le
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-386:
-	GOOS=linux GOARCH=386 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-amd64:
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-5:
-	GOOS=linux GOARCH=arm GOARM=5 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-6:
-	GOOS=linux GOARCH=arm GOARM=6 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm-7:
-	GOOS=linux GOARCH=arm GOARM=7 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-arm64:
-	GOOS=linux GOARCH=arm64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips:
-	GOOS=linux GOARCH=mips $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips64:
-	GOOS=linux GOARCH=mips64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mipsle:
-	GOOS=linux GOARCH=mipsle $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-linux-mips64le:
-	GOOS=linux GOARCH=mips64le $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-.PHONY: release-darwin
-release-darwin: $(DIST) \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-darwin-amd64 \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-darwin-arm64
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-darwin-amd64:
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-darwin-arm64:
-	GOOS=darwin GOARCH=arm64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-.PHONY: release-windows
-release-windows: $(DIST) \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-386.exe \
-	$(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-amd64.exe
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-386.exe:
-	GOOS=windows GOARCH=386 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-$(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-amd64.exe:
-	GOOS=windows GOARCH=amd64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./cmd/$(NAME)
-
-.PHONY: release-reduce
-release-reduce:
-	cd $(DIST); $(foreach file,$(wildcard $(DIST)/$(EXECUTABLE)-*),upx $(notdir $(file));)
-
-.PHONY: release-checksum
-release-checksum:
-	cd $(DIST); $(foreach file,$(wildcard $(DIST)/$(EXECUTABLE)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
-
-.PHONY: release-finish
-release-finish: release-reduce release-checksum
-
-.PHONY: docs
-docs:
-	hugo -s docs/
-
-.PHONY: watch
-watch: $(REFLEX)
-	$(REFLEX) -c reflex.conf
+.PHONY: deps
+deps:
+	$(GO) mod download
+	$(GO) install $(GOFUMPT_PACKAGE)
+	$(GO) install $(GOLANGCI_LINT_PACKAGE)
+	$(GO) install $(XGO_PACKAGE)

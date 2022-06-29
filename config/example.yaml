@@ -19,5 +19,3 @@ log:
   level: info
   pretty: true
   color: true
-
-...

@@ -1,5 +1,8 @@
 coverage.out
-b0x.go
+embed.go
 
 /bin
 /dist
+
+.drone.yml
+CHANGELOG.md

@@ -10,10 +10,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
-	"github.com/webhippie/errors/pkg/config"
-	"github.com/webhippie/errors/pkg/handler"
-	"github.com/webhippie/errors/pkg/middleware/header"
-	"github.com/webhippie/errors/pkg/middleware/prometheus"
+	"github.owncloud.com/owncloud-ops/errors/pkg/config"
+	"github.owncloud.com/owncloud-ops/errors/pkg/handler"
+	"github.owncloud.com/owncloud-ops/errors/pkg/middleware/header"
+	"github.owncloud.com/owncloud-ops/errors/pkg/middleware/prometheus"
 )
 
 // Load initializes the routing of the application.
@@ -54,14 +54,14 @@ func Load(cfg *config.Config) http.Handler {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusOK)
 
-			io.WriteString(w, http.StatusText(http.StatusOK))
+			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
 		})
 
 		root.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusOK)
 
-			io.WriteString(w, http.StatusText(http.StatusOK))
+			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
 		})
 	})
 
@@ -92,14 +92,14 @@ func Metrics(cfg *config.Config) http.Handler {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusOK)
 
-			io.WriteString(w, http.StatusText(http.StatusOK))
+			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
 		})
 
 		root.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/plain")
 			w.WriteHeader(http.StatusOK)
 
-			io.WriteString(w, http.StatusText(http.StatusOK))
+			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
 		})
 	})
 
