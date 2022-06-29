@@ -33,6 +33,7 @@ var (
 	defaultServerStrictCiphers = false
 	defaultServerTemplates     = ""
 	defaultServerErrors        = ""
+	defaultServerErrorsTitle   = ""
 )
 
 func init() {
@@ -85,6 +86,10 @@ func init() {
 	serverCmd.PersistentFlags().String("errors-path", defaultServerErrors, "Path for overriding errors")
 	viper.SetDefault("server.errors", defaultServerErrors)
 	_ = viper.BindPFlag("server.errors", serverCmd.PersistentFlags().Lookup("errors-path"))
+
+	serverCmd.PersistentFlags().String("errors-title", defaultServerErrorsTitle, "String for overriding errors title")
+	viper.SetDefault("server.errors_title", defaultServerErrorsTitle)
+	_ = viper.BindPFlag("server.errors_title", serverCmd.PersistentFlags().Lookup("errors-title"))
 }
 
 func serverAction(ccmd *cobra.Command, args []string) {

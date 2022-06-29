@@ -4,4 +4,5 @@ package model
 type Payload struct {
 	Status int
 	Error  string
+	Title  string
 }

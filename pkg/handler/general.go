@@ -43,6 +43,7 @@ func General(cfg *config.Config) http.HandlerFunc {
 			model.Payload{
 				Status: code,
 				Error:  msg,
+				Title:  cfg.Server.ErrorsTitle,
 			},
 		); err != nil {
 			log.Error().

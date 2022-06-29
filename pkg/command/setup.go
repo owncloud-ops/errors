@@ -40,6 +40,10 @@ func setupLogger() error {
 }
 
 func setupConfig() {
+	viper.SetEnvPrefix("errors")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
+
 	if viper.GetString("config.file") != "" {
 		viper.SetConfigFile(viper.GetString("config.file"))
 	} else {
@@ -48,10 +52,6 @@ func setupConfig() {
 		viper.AddConfigPath("$HOME/.errors")
 		viper.AddConfigPath("./errors")
 	}
-
-	viper.SetEnvPrefix("errors")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

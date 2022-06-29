@@ -9,7 +9,7 @@
     />
     <meta name="robots" content="noindex, nofollow" />
 
-    <title>Oops! You're lost</title>
+    <title>{{ if .Title }}{{ .Title }}{{ else }}Oops! You're lost{{ end }}</title>
 
     <style>
         html,
@@ -71,7 +71,7 @@
             <h1>{{ .Status }}</h1>
         </div>
         <div class="no-wrap">
-            <h4>Oops! You're lost.</h4>
+            <h4>{{ if .Title }}{{ .Title }}{{ else }}Oops! You're lost{{ end }}.</h4>
             <p>{{ .Error }}</p>
         </div>
     </div>

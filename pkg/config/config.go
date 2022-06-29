@@ -12,6 +12,7 @@ type Server struct {
 	StrictCiphers bool   `mapstructure:"strict_ciphers"`
 	Templates     string `mapstructure:"templates"`
 	Errors        string `mapstructure:"errors"`
+	ErrorsTitle   string `mapstructure:"errors_title"`
 }
 
 // Metrics defines the metrics server configuration.
