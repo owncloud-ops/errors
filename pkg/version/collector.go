@@ -12,7 +12,7 @@ func Collector(ns string) *prometheus.GaugeVec {
 			Name:      "build_info",
 			Help:      "A metric with a constant '1' value labeled by version, revision and goversion from which it was built.",
 		},
-		[]string{"version", "revision", "goversion"},
+		[]string{"version", "builddate"},
 	)
 
 	info.WithLabelValues(String, Date).Set(1)
