@@ -4,6 +4,15 @@
 
 This service provides handlers for a default backend which can be used within Kubernetes Ingress controllers like Nginx. It displayes nice error pages and it is customizable on all aspects.
 
+## Ports
+
+- 8080
+- 8081
+
+## Volumes
+
+- /opt/app/data
+
 ## Environment Variables
 
 ```Shell
@@ -42,11 +51,6 @@ ERRORS_SERVER_TEMPLATES=
 # Path for overriding errors
 ERRORS_SERVER_ERRORS=
 ```
-
-## Ports
-
-- 8080
-- 8081
 
 ## Build
 
