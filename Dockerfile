@@ -21,6 +21,6 @@ EXPOSE 8080 8081
 USER app
 
 WORKDIR /home/app
-HEALTHCHECK --interval=10s --timeout=5s --start-period=2s --retries=3 CMD ["/bin/errors", "health"]
+HEALTHCHECK --interval=10s --timeout=5s --start-period=2s --retries=5 CMD ["/bin/errors", "health"]
 ENTRYPOINT ["/bin/errors"]
 CMD ["server"]
