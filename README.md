@@ -63,7 +63,7 @@ git clone https://github.owncloud.com/owncloud-ops/errors.git
 cd errors
 
 make generate build
-./bin/errors --help
+./dist/errors --help
 ```
 
 To build the container use:
