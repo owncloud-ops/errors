@@ -50,6 +50,8 @@ ERRORS_SERVER_STRICT_CIPHERS=false
 ERRORS_SERVER_TEMPLATES=
 # Path for overriding errors
 ERRORS_SERVER_ERRORS=
+# String for overriding errors title
+ERRORS_SERVER_ERRORS_TITLE=
 ```
 
 ## Build

@@ -68,9 +68,9 @@ steps:
         path: /go
 
   - name: build
-    image: techknowlogick/xgo:go-1.18.x
+    image: golang:1.18
     commands:
-      - make release
+      - make build
     volumes:
       - name: godeps
         path: /go
@@ -78,8 +78,8 @@ steps:
   - name: executable
     image: golang:1.18
     commands:
-      - $(find dist/ -executable -type f | grep errors-linux-amd64) --help
-      - $(find dist/ -executable -type f | grep errors-linux-amd64) -v
+      - dist/errors --help
+      - dist/errors -v
 
   - name: tags
     image: thegeeklab/docker-autotag
