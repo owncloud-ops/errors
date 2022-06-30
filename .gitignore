@@ -4,5 +4,4 @@ embed.go
 /bin
 /dist
 
-.drone.yml
 CHANGELOG.md

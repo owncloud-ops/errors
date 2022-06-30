@@ -2,7 +2,7 @@
 
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud-ops/errors/status.svg)](https://drone.owncloud.com/owncloud-ops/errors)
 
-This service provides handlers for a default backend which can be used within Kubernetes Ingress controllers like Nginx. It displayes nice error pages and it is customizable on all aspects.
+The errors service provides handlers for a default backend which can be used within Kubernetes Ingress controllers like Nginx. It displayes unified and customizable error pages. This project is a customized fork of [webhippie/errors](https://github.com/webhippie/errors).
 
 ## Ports
 
