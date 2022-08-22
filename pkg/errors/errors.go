@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/rs/zerolog/log"
@@ -65,7 +64,7 @@ func Load(cfg *config.Config) List {
 			return defaultErrors
 		}
 
-		content, err := ioutil.ReadFile(cfg.Server.Errors)
+		content, err := os.ReadFile(cfg.Server.Errors)
 		if err != nil {
 			log.Error().
 				Err(err).

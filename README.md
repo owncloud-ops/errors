@@ -56,7 +56,7 @@ ERRORS_SERVER_ERRORS_TITLE=
 
 ## Build
 
-Make sure you have a working Go environment, for further reference or a guide take a look at the [install instructions](https://golang.org/doc/install.html). This project requires Go >= v1.18.
+Make sure you have a working Go environment, for further reference or a guide take a look at the [install instructions](https://golang.org/doc/install.html). This project requires Go >= v1.19.
 
 ```Shell
 git clone https://github.owncloud.com/owncloud-ops/errors.git
