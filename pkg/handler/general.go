@@ -28,10 +28,6 @@ func General(cfg *config.Config) http.HandlerFunc {
 		format := detectFormat(req)
 		file := parseFormat(format)
 
-		log.Debug().
-			Int("code", code).
-			Msg("Invalid request code")
-
 		if http.StatusText(code) == "" {
 			log.Info().
 				Int("code", code).
