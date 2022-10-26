@@ -28,6 +28,13 @@ func General(cfg *config.Config) http.HandlerFunc {
 		format := detectFormat(req)
 		file := parseFormat(format)
 
+		if http.StatusText(code) == "" {
+			log.Info().
+				Int("code", code).
+				Msg("Invalid request code extracted from request")
+			code = http.StatusInternalServerError
+		}
+
 		w.Header().Set("Content-Type", format)
 		w.WriteHeader(code)
 
