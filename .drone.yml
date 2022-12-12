@@ -90,7 +90,7 @@ steps:
       DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
 
   - name: dryrun
-    image: plugins/docker
+    image: plugins/docker:20
     settings:
       dockerfile: Dockerfile
       dry_run: true
@@ -107,7 +107,7 @@ steps:
       - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
 
   - name: publish
-    image: plugins/docker
+    image: plugins/docker:20
     settings:
       dockerfile: Dockerfile
       password:
