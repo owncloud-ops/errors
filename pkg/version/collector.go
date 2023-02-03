@@ -16,5 +16,6 @@ func Collector(ns string) *prometheus.GaugeVec {
 	)
 
 	info.WithLabelValues(String, Date).Set(1)
+
 	return info
 }

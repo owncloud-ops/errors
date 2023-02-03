@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -53,8 +54,9 @@ func setupConfig() {
 		viper.AddConfigPath("./errors")
 	}
 
+	var errConfigFileNotFound viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		if ok := errors.As(err, &errConfigFileNotFound); ok {
 			// ignore if config file does not exist
 		} else {
 			log.Error().

@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -93,7 +94,13 @@ func init() {
 }
 
 func serverAction(ccmd *cobra.Command, args []string) {
-	var gr run.Group
+	const (
+		RunTimeout       = 3 * time.Second
+		HTTPReadTimeout  = 5 * time.Second
+		HTTPWriteTimeout = 10 * time.Second
+	)
+
+	var group run.Group
 
 	if cfg.Server.Cert != "" && cfg.Server.Key != "" {
 		cert, err := tls.LoadX509KeyPair(
@@ -111,8 +118,8 @@ func serverAction(ccmd *cobra.Command, args []string) {
 		server := &http.Server{
 			Addr:         cfg.Server.Addr,
 			Handler:      router.Load(cfg),
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  HTTPReadTimeout,
+			WriteTimeout: HTTPWriteTimeout,
 			TLSConfig: &tls.Config{
 				PreferServerCipherSuites: true,
 				MinVersion:               tls.VersionTLS12,
@@ -122,14 +129,18 @@ func serverAction(ccmd *cobra.Command, args []string) {
 			},
 		}
 
-		gr.Add(func() error {
+		group.Add(func() error {
 			log.Info().
 				Str("addr", cfg.Server.Addr).
 				Msg("Starting HTTPS server")
 
-			return server.ListenAndServeTLS("", "")
+			if err := server.ListenAndServeTLS("", ""); err != nil {
+				return fmt.Errorf("failed to start https server: %w", err)
+			}
+
+			return nil
 		}, func(reason error) {
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), RunTimeout)
 			defer cancel()
 
 			if err := server.Shutdown(ctx); err != nil {
@@ -148,18 +159,22 @@ func serverAction(ccmd *cobra.Command, args []string) {
 		server := &http.Server{
 			Addr:         cfg.Server.Addr,
 			Handler:      router.Load(cfg),
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  HTTPReadTimeout,
+			WriteTimeout: HTTPWriteTimeout,
 		}
 
-		gr.Add(func() error {
+		group.Add(func() error {
 			log.Info().
 				Str("addr", cfg.Server.Addr).
 				Msg("Starting HTTP server")
 
-			return server.ListenAndServe()
+			if err := server.ListenAndServe(); err != nil {
+				return fmt.Errorf("failed to start http server: %w", err)
+			}
+
+			return nil
 		}, func(reason error) {
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), RunTimeout)
 			defer cancel()
 
 			if err := server.Shutdown(ctx); err != nil {
@@ -180,18 +195,22 @@ func serverAction(ccmd *cobra.Command, args []string) {
 		server := &http.Server{
 			Addr:         cfg.Metrics.Addr,
 			Handler:      router.Metrics(cfg),
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  HTTPReadTimeout,
+			WriteTimeout: HTTPWriteTimeout,
 		}
 
-		gr.Add(func() error {
+		group.Add(func() error {
 			log.Info().
 				Str("addr", cfg.Metrics.Addr).
 				Msg("Starting metrics server")
 
-			return server.ListenAndServe()
+			if err := server.ListenAndServe(); err != nil {
+				return fmt.Errorf("failed to start metrics server: %w", err)
+			}
+
+			return nil
 		}, func(reason error) {
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), RunTimeout)
 			defer cancel()
 
 			if err := server.Shutdown(ctx); err != nil {
@@ -211,7 +230,7 @@ func serverAction(ccmd *cobra.Command, args []string) {
 	{
 		stop := make(chan os.Signal, 1)
 
-		gr.Add(func() error {
+		group.Add(func() error {
 			signal.Notify(stop, os.Interrupt)
 
 			<-stop
@@ -222,7 +241,7 @@ func serverAction(ccmd *cobra.Command, args []string) {
 		})
 	}
 
-	if err := gr.Run(); err != nil {
+	if err := group.Run(); err != nil {
 		os.Exit(1)
 	}
 }

@@ -1,14 +1,11 @@
 linters:
   enable:
     - gosimple
-    - deadcode
     - typecheck
     - govet
     - errcheck
     - staticcheck
     - unused
-    - structcheck
-    - varcheck
     - dupl
     - gofmt
     - misspell
@@ -18,6 +15,16 @@ linters:
     - revive
     - gofumpt
     - depguard
+    - exportloopref
+    - goconst
+    - promlinter
+    - wsl
+    - errorlint
+    - gomnd
+    - nlreturn
+    - usestdlibvars
+    - varnamelen
+    - wrapcheck
   enable-all: false
   disable-all: true
   fast: false
@@ -28,4 +35,4 @@ run:
 linters-settings:
   gofumpt:
     extra-rules: true
-    lang-version: "1.19"
+    lang-version: "1.20"

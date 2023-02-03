@@ -8,26 +8,29 @@ import (
 
 // Handler initializes the prometheus middleware.
 func Handler(token string) http.HandlerFunc {
-	h := promhttp.Handler()
+	promHandler := promhttp.Handler()
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(writer http.ResponseWriter, req *http.Request) {
 		if token == "" {
-			h.ServeHTTP(w, r)
+			promHandler.ServeHTTP(writer, req)
+
 			return
 		}
 
-		header := r.Header.Get("Authorization")
+		header := req.Header.Get("Authorization")
 
 		if header == "" {
-			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
+			http.Error(writer, "Invalid or missing token", http.StatusUnauthorized)
+
 			return
 		}
 
 		if header != "Bearer "+token {
-			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
+			http.Error(writer, "Invalid or missing token", http.StatusUnauthorized)
+
 			return
 		}
 
-		h.ServeHTTP(w, r)
+		promHandler.ServeHTTP(writer, req)
 	}
 }

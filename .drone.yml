@@ -9,7 +9,7 @@ platform:
 
 steps:
   - name: deps
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make deps
     volumes:
@@ -17,7 +17,7 @@ steps:
         path: /go
 
   - name: generate
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make generate
     volumes:
@@ -25,7 +25,7 @@ steps:
         path: /go
 
   - name: lint
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make lint
     volumes:
@@ -33,7 +33,7 @@ steps:
         path: /go
 
   - name: test
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make test
     volumes:
@@ -60,7 +60,7 @@ platform:
 
 steps:
   - name: generate
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make generate
     volumes:
@@ -68,7 +68,7 @@ steps:
         path: /go
 
   - name: build
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - make build
     volumes:
@@ -76,7 +76,7 @@ steps:
         path: /go
 
   - name: executable
-    image: golang:1.19
+    image: golang:1.20
     commands:
       - dist/errors --help
       - dist/errors -v

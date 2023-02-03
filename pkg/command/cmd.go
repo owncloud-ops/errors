@@ -1,6 +1,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.owncloud.com/owncloud-ops/errors/pkg/config"
@@ -29,6 +31,7 @@ var (
 
 func init() {
 	cfg = config.Load()
+
 	cobra.OnInitialize(setupConfig)
 
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Show the help, so what you see now")
@@ -52,5 +55,9 @@ func init() {
 
 // Run parses the command line arguments and executes the program.
 func Run() error {
-	return rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		return fmt.Errorf("failed to exe errors: %w", err)
+	}
+
+	return nil
 }
