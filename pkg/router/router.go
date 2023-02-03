@@ -16,6 +16,8 @@ import (
 	"github.owncloud.com/owncloud-ops/errors/pkg/middleware/prometheus"
 )
 
+const MiddlewareTimeout = 60 * time.Second
+
 // Load initializes the routing of the application.
 func Load(cfg *config.Config) http.Handler {
 	mux := chi.NewRouter()
@@ -36,7 +38,7 @@ func Load(cfg *config.Config) http.Handler {
 			Msg("")
 	}))
 
-	mux.Use(middleware.Timeout(60 * time.Second))
+	mux.Use(middleware.Timeout(MiddlewareTimeout))
 	mux.Use(middleware.RealIP)
 	mux.Use(header.Version)
 	mux.Use(header.Cache)
@@ -78,7 +80,7 @@ func Metrics(cfg *config.Config) http.Handler {
 	mux.Use(hlog.MethodHandler("method"))
 	mux.Use(hlog.RequestIDHandler("request_id", "Request-Id"))
 
-	mux.Use(middleware.Timeout(60 * time.Second))
+	mux.Use(middleware.Timeout(MiddlewareTimeout))
 	mux.Use(middleware.RealIP)
 	mux.Use(header.Version)
 	mux.Use(header.Cache)

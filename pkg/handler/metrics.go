@@ -29,8 +29,8 @@ var (
 		prometheus.HistogramOpts{
 			Namespace: namespace,
 			Subsystem: subsystem,
-			Name:      "request_duration_milliseconds",
-			Help:      "histogram of the time (in milliseconds) each request took",
+			Name:      "request_duration_seconds",
+			Help:      "histogram of the time (in seconds) each request took",
 			Buckets:   append([]float64{.001, .003}, prometheus.DefBuckets...),
 		},
 		[]string{"proto"},
@@ -49,7 +49,7 @@ func init() {
 }
 
 func handleMetrics(start time.Time, major, minor int) {
-	duration := time.Since(start).Seconds() * 1e3
+	duration := time.Since(start).Seconds()
 
 	requestCounter.WithLabelValues(fmt.Sprintf("%d.%d", major, minor)).Inc()
 	requestDuration.WithLabelValues(fmt.Sprintf("%d.%d", major, minor)).Observe(duration)

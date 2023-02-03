@@ -50,8 +50,9 @@ func healthAction(ccmd *cobra.Command, args []string) {
 	defer handleExit()
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		exitCode = 42
+
 		log.Error().
 			Int("code", resp.StatusCode).
 			Msg("health seems to be in bad state")

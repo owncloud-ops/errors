@@ -1,7 +1,7 @@
 # renovate: datasource=github-releases depName=mvdan/gofumpt
 GOFUMPT_PACKAGE_VERSION := v0.4.0
 # renovate: datasource=github-releases depName=golangci/golangci-lint
-GOLANGCI_LINT_PACKAGE_VERSION := v1.50.1
+GOLANGCI_LINT_PACKAGE_VERSION := v1.51.0
 
 SHELL := bash
 NAME := errors
@@ -20,7 +20,7 @@ XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
 
 GENERATE ?=
 XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
-XGO_VERSION := go-1.19.x
+XGO_VERSION := go-1.20.x
 XGO_TARGETS ?= linux/amd64
 
 TAGS ?= netgo

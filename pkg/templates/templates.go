@@ -2,6 +2,7 @@ package templates
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"os"
@@ -12,45 +13,37 @@ import (
 	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 )
 
-var (
-	//go:embed dist/*
-	embeddedTemplates embed.FS
-
-	allowedExtensions = []string{
-		".tmpl",
-		".html",
-		".json",
-	}
-)
+//go:embed dist/*
+var embeddedTemplates embed.FS
 
 // Load initializes the template files.
 func Load(cfg *config.Config) *template.Template {
 	tpls := template.New("")
 
-	err := fs.WalkDir(embeddedTemplates, ".", func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(embeddedTemplates, ".", func(name string, dir fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if d.IsDir() {
+		if dir.IsDir() {
 			return nil
 		}
 
-		if forbiddenExtension(filepath.Ext(d.Name())) {
+		if forbiddenExtension(filepath.Ext(dir.Name())) {
 			return nil
 		}
 
 		content, err := fs.ReadFile(
 			embeddedTemplates,
-			p,
+			name,
 		)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read embedded template file: %w", err)
 		}
 
 		_, _ = tpls.New(
 			strings.TrimPrefix(
-				d.Name(),
+				dir.Name(),
 				"dist/",
 			),
 		).Parse(
@@ -74,30 +67,30 @@ func Load(cfg *config.Config) *template.Template {
 			return tpls
 		}
 
-		err := filepath.Walk(cfg.Server.Templates, func(p string, d fs.FileInfo, err error) error {
+		err := filepath.Walk(cfg.Server.Templates, func(name string, dir fs.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 
-			if d.IsDir() {
+			if dir.IsDir() {
 				return nil
 			}
 
-			if forbiddenExtension(filepath.Ext(d.Name())) {
+			if forbiddenExtension(filepath.Ext(dir.Name())) {
 				return nil
 			}
 
 			content, err := os.ReadFile(
-				p,
+				name,
 			)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to read custom template file: %w", err)
 			}
 
 			_, _ = tpls.New(
 				strings.TrimPrefix(
 					strings.TrimPrefix(
-						d.Name(),
+						dir.Name(),
 						cfg.Server.Templates,
 					),
 					"/",
@@ -119,6 +112,12 @@ func Load(cfg *config.Config) *template.Template {
 }
 
 func forbiddenExtension(ext string) bool {
+	allowedExtensions := []string{
+		".tmpl",
+		".html",
+		".json",
+	}
+
 	for _, allowed := range allowedExtensions {
 		if ext == allowed {
 			return false

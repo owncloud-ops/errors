@@ -21,7 +21,7 @@ import (
 func General(cfg *config.Config) http.HandlerFunc {
 	availableErrors := errors.Load(cfg)
 
-	return func(w http.ResponseWriter, req *http.Request) {
+	return func(writer http.ResponseWriter, req *http.Request) {
 		defer handleMetrics(time.Now(), req.ProtoMajor, req.ProtoMinor)
 
 		code := detectCode(req)
@@ -32,11 +32,12 @@ func General(cfg *config.Config) http.HandlerFunc {
 			log.Info().
 				Int("code", code).
 				Msg("Invalid request code extracted from request")
+
 			code = http.StatusInternalServerError
 		}
 
-		w.Header().Set("Content-Type", format)
-		w.WriteHeader(code)
+		writer.Header().Set("Content-Type", format)
+		writer.WriteHeader(code)
 
 		msg, ok := availableErrors[code]
 
@@ -45,7 +46,7 @@ func General(cfg *config.Config) http.HandlerFunc {
 		}
 
 		if err := templates.Load(cfg).ExecuteTemplate(
-			w,
+			writer,
 			file,
 			model.Payload{
 				Status: code,
@@ -58,7 +59,7 @@ func General(cfg *config.Config) http.HandlerFunc {
 				Str("template", file).
 				Msg("Failed to execute template")
 
-			_, _ = io.WriteString(w, http.StatusText(code))
+			_, _ = io.WriteString(writer, http.StatusText(code))
 		}
 	}
 }
@@ -101,7 +102,7 @@ func detectCode(req *http.Request) int {
 		return code
 	}
 
-	return 404
+	return http.StatusNotFound
 }
 
 func detectFormat(req *http.Request) string {
@@ -114,17 +115,18 @@ func detectFormat(req *http.Request) string {
 	)
 
 	if name != "/" {
-		switch filepath.Ext(name) {
+		ext := filepath.Ext(name)
+		switch ext {
 		case ".html":
-			return "text/html"
+			return mime.TypeByExtension(ext)
 		case ".json":
-			return "application/json"
+			return mime.TypeByExtension(ext)
 		default:
 			log.Info().
 				Str("format", name).
 				Msg("Failed to detect format")
 
-			return "text/html"
+			return mime.TypeByExtension(ext)
 		}
 	}
 
@@ -138,7 +140,10 @@ func detectFormat(req *http.Request) string {
 }
 
 func parseFormat(format string) string {
+	const defaultTemplate = "html.tmpl"
+
 	mediaType, _, _ := mime.ParseMediaType(format)
+
 	cext, err := mime.ExtensionsByType(mediaType)
 	if err != nil {
 		log.Error().
@@ -146,7 +151,7 @@ func parseFormat(format string) string {
 			Str("format", format).
 			Msg("Failed to parse media type extension")
 
-		return "html.tmpl"
+		return defaultTemplate
 	}
 
 	if len(cext) == 0 {
@@ -154,11 +159,11 @@ func parseFormat(format string) string {
 			Str("format", format).
 			Msg("Could not detect media type extension")
 
-		return "html.tmpl"
+		return defaultTemplate
 	}
 
 	if cext[0] == ".htm" {
-		return "html.tmpl"
+		return defaultTemplate
 	}
 
 	return strings.TrimPrefix(
