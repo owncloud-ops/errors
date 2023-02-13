@@ -16,13 +16,13 @@ import (
 	"github.owncloud.com/owncloud-ops/errors/pkg/router"
 )
 
-var (
-	serverCmd = &cobra.Command{
-		Use:   "server",
-		Short: "Start integrated server",
-		Run:   serverAction,
-	}
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Start integrated server",
+	Run:   serverAction,
+}
 
+const (
 	defaultMetricsAddr         = "0.0.0.0:8081"
 	defaultServerAddr          = "0.0.0.0:8080"
 	defaultServerPprof         = false
@@ -102,6 +102,7 @@ func serverAction(ccmd *cobra.Command, args []string) {
 
 	var group run.Group
 
+	//nolint:nestif
 	if cfg.Server.Cert != "" && cfg.Server.Key != "" {
 		cert, err := tls.LoadX509KeyPair(
 			cfg.Server.Cert,
