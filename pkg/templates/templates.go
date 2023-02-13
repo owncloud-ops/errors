@@ -58,6 +58,7 @@ func Load(cfg *config.Config) *template.Template {
 			Msg("Failed to parse builtin templates")
 	}
 
+	//nolint:nestif
 	if cfg.Server.Templates != "" {
 		if stat, err := os.Stat(cfg.Server.Templates); os.IsNotExist(err) || !stat.IsDir() {
 			log.Warn().

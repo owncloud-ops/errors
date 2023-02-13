@@ -1,9 +1,11 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -17,6 +19,8 @@ var healthCmd = &cobra.Command{
 }
 
 var exitCode = 0
+
+const HTTPClientTimeout = 5 * time.Second
 
 func init() {
 	rootCmd.AddCommand(healthCmd)
@@ -33,12 +37,21 @@ func handleExit() {
 }
 
 func healthAction(ccmd *cobra.Command, args []string) {
-	resp, err := http.Get(
-		fmt.Sprintf(
-			"http://%s/healthz",
-			cfg.Metrics.Addr,
-		),
-	)
+	client := http.Client{
+		Timeout: HTTPClientTimeout,
+	}
+	url := fmt.Sprintf("http://%s/healthz", cfg.Metrics.Addr)
+
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, http.NoBody)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to request health check")
+
+		os.Exit(1)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Error().
 			Err(err).

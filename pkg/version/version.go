@@ -1,5 +1,6 @@
 package version
 
+//nolint:gochecknoglobals
 var (
 	// String gets defined by the build system.
 	String = "0.0.0"
