@@ -36,6 +36,7 @@ func handleExit() {
 	}
 }
 
+//nolint:revive
 func healthAction(ccmd *cobra.Command, args []string) {
 	client := http.Client{
 		Timeout: HTTPClientTimeout,
