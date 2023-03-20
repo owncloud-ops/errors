@@ -93,6 +93,7 @@ func init() {
 	_ = viper.BindPFlag("server.errors_title", serverCmd.PersistentFlags().Lookup("errors-title"))
 }
 
+//nolint:revive
 func serverAction(ccmd *cobra.Command, args []string) {
 	const (
 		RunTimeout       = 3 * time.Second

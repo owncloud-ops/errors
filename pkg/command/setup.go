@@ -56,9 +56,7 @@ func setupConfig() {
 
 	var errConfigFileNotFound viper.ConfigFileNotFoundError
 	if err := viper.ReadInConfig(); err != nil {
-		if ok := errors.As(err, &errConfigFileNotFound); ok {
-			// ignore if config file does not exist
-		} else {
+		if ok := errors.As(err, &errConfigFileNotFound); !ok {
 			log.Error().
 				Err(err).
 				Msg("Failed to read config file")
