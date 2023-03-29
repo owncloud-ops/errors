@@ -1,6 +1,8 @@
 # errors
 
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud-ops/errors/status.svg)](https://drone.owncloud.com/owncloud-ops/errors)
+[![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/errors)
+[![Quay.io](https://img.shields.io/badge/quay-latest-blue.svg?logo=docker&logoColor=white)](https://quay.io/repository/owncloudops/errors)
 
 The errors service provides handlers for a default backend which can be used within Kubernetes Ingress controllers like Nginx. It displayes unified and customizable error pages. This project is a customized fork of [webhippie/errors](https://github.com/webhippie/errors).
 
