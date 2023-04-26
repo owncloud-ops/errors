@@ -1,14 +1,15 @@
-package prometheus
+package metrics
 
 import (
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 )
 
-// Handler initializes the prometheus middleware.
-func Handler(token string) http.HandlerFunc {
-	promHandler := promhttp.Handler()
+func NewHandler(cfg *config.Config) http.HandlerFunc {
+	promHandler := promhttp.HandlerFor(cfg.Metrics.Reg, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError})
+	token := cfg.Metrics.Token
 
 	return func(writer http.ResponseWriter, req *http.Request) {
 		if token == "" {
