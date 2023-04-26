@@ -2,7 +2,6 @@ package router
 
 import (
 	"crypto/tls"
-	"io"
 	"net/http"
 	"time"
 
@@ -11,9 +10,12 @@ import (
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
 	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	"github.owncloud.com/owncloud-ops/errors/pkg/handler"
-	"github.owncloud.com/owncloud-ops/errors/pkg/middleware/header"
-	"github.owncloud.com/owncloud-ops/errors/pkg/middleware/prometheus"
+	errorpagesHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/errorpage"
+	healthHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/healthz"
+	metricsHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/metrics"
+	"github.owncloud.com/owncloud-ops/errors/pkg/http/handler/notfound"
+	"github.owncloud.com/owncloud-ops/errors/pkg/http/middleware/header"
+	"github.owncloud.com/owncloud-ops/errors/pkg/http/middleware/metrics"
 )
 
 const MiddlewareTimeout = 60 * time.Second
@@ -40,32 +42,22 @@ func Load(cfg *config.Config) http.Handler {
 
 	mux.Use(middleware.Timeout(MiddlewareTimeout))
 	mux.Use(middleware.RealIP)
+	mux.Use(metrics.DurationMetrics(&cfg.Metrics.Metrics))
 	mux.Use(header.Version)
 	mux.Use(header.Cache)
 	mux.Use(header.Secure)
 	mux.Use(header.Options)
 
-	mux.NotFound(handler.General(cfg))
-
 	mux.Route(cfg.Server.Root, func(root chi.Router) {
+		root.Get("/{code}.html", errorpagesHandler.NewHandler(cfg))
+		root.Get("/healthz", healthHandler.NewHandler())
+
 		if cfg.Server.Pprof {
 			root.Mount("/debug", middleware.Profiler())
 		}
-
-		root.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/plain")
-			w.WriteHeader(http.StatusOK)
-
-			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
-		})
-
-		root.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/plain")
-			w.WriteHeader(http.StatusOK)
-
-			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
-		})
 	})
+
+	mux.NotFound(notfound.NewHandler(cfg))
 
 	return mux
 }
@@ -88,22 +80,11 @@ func Metrics(cfg *config.Config) http.Handler {
 	mux.Use(header.Options)
 
 	mux.Route("/", func(root chi.Router) {
-		root.Get("/metrics", prometheus.Handler(cfg.Metrics.Token))
-
-		root.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/plain")
-			w.WriteHeader(http.StatusOK)
-
-			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
-		})
-
-		root.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/plain")
-			w.WriteHeader(http.StatusOK)
-
-			_, _ = io.WriteString(w, http.StatusText(http.StatusOK))
-		})
+		root.Get("/metrics", metricsHandler.NewHandler(cfg))
+		root.Get("/healthz", healthHandler.NewHandler())
 	})
+
+	mux.NotFound(notfound.NewHandler(cfg))
 
 	return mux
 }

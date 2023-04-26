@@ -1,5 +1,10 @@
 package config
 
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.owncloud.com/owncloud-ops/errors/pkg/metrics"
+)
+
 // Server defines the server configuration.
 type Server struct {
 	Addr          string `mapstructure:"addr"`
@@ -17,8 +22,10 @@ type Server struct {
 
 // Metrics defines the metrics server configuration.
 type Metrics struct {
-	Addr  string `mapstructure:"addr"`
-	Token string `mapstructure:"token"`
+	Addr    string `mapstructure:"addr"`
+	Token   string `mapstructure:"token"`
+	Reg     *prometheus.Registry
+	Metrics metrics.Metrics
 }
 
 // Logs defines the level and color for log configuration.

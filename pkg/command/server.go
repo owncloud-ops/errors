@@ -13,7 +13,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.owncloud.com/owncloud-ops/errors/pkg/router"
+	"github.owncloud.com/owncloud-ops/errors/pkg/http/router"
+	"github.owncloud.com/owncloud-ops/errors/pkg/metrics"
 )
 
 var serverCmd = &cobra.Command{
@@ -194,6 +195,7 @@ func serverAction(ccmd *cobra.Command, args []string) {
 	}
 
 	{
+		cfg.Metrics.Reg, cfg.Metrics.Metrics = metrics.NewRegistry(), metrics.NewMetrics()
 		server := &http.Server{
 			Addr:         cfg.Metrics.Addr,
 			Handler:      router.Metrics(cfg),
@@ -205,6 +207,10 @@ func serverAction(ccmd *cobra.Command, args []string) {
 			log.Info().
 				Str("addr", cfg.Metrics.Addr).
 				Msg("Starting metrics server")
+
+			if err := cfg.Metrics.Metrics.Register(cfg.Metrics.Reg); err != nil {
+				return fmt.Errorf("failed register metrics: %w", err)
+			}
 
 			if err := server.ListenAndServe(); err != nil {
 				return fmt.Errorf("failed to start metrics server: %w", err)
