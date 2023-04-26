@@ -12,10 +12,10 @@ type metrics interface {
 
 func DurationMetrics(m metrics) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
+		fn := func(writer http.ResponseWriter, req *http.Request) {
 			startedAt := time.Now()
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(writer, req)
 
 			m.IncrementTotalRequests()
 			m.ObserveRequestDuration(time.Since(startedAt))
