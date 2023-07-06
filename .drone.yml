@@ -10,6 +10,7 @@ platform:
 steps:
   - name: deps
     image: docker.io/golang:1.20
+    pull: always
     commands:
       - make deps
     volumes:
@@ -227,5 +228,3 @@ trigger:
 
 depends_on:
   - container
-
-...
