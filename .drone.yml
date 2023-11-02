@@ -115,7 +115,7 @@ steps:
     commands:
       - trivy -v
       - ls -l oci/${DRONE_REPO_NAME}
-      - trivy image oci/${DRONE_REPO_NAME}
+      - trivy image --input oci/${DRONE_REPO_NAME}
     depends_on:
       - security-build
 
