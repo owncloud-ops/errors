@@ -101,6 +101,7 @@ steps:
     settings:
       dockerfile: Dockerfile
       output: type=oci,dest=oci/${DRONE_REPO_NAME},tar=false
+      repo: owncloudops/${DRONE_REPO_NAME}
     depends_on:
       - tags
 
