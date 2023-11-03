@@ -17,11 +17,10 @@ SOURCES ?= $(shell find . -name "*.go" -type f)
 GOFUMPT_PACKAGE ?= mvdan.cc/gofumpt@$(GOFUMPT_PACKAGE_VERSION)
 GOLANGCI_LINT_PACKAGE ?= github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_PACKAGE_VERSION)
 XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
+GOTESTSUM_PACKAGE ?= gotest.tools/gotestsum@latest
 
-GENERATE ?=
-XGO_PACKAGE ?= src.techknowlogick.com/xgo@latest
 XGO_VERSION := go-1.21.x
-XGO_TARGETS ?= linux/amd64
+XGO_TARGETS ?= linux/amd64,linux/arm64
 
 TAGS ?= netgo
 
@@ -58,13 +57,9 @@ golangci-lint:
 .PHONY: lint
 lint: golangci-lint
 
-.PHONY: generate
-generate:
-	go generate $(GENERATE)
-
 .PHONY: test
 test:
-	$(GO) test -v -coverprofile coverage.out $(PACKAGES)
+	$(GO) run $(GOTESTSUM_PACKAGE) -- -coverprofile=coverage.out $(PACKAGES)
 
 .PHONY: build
 build: $(DIST)/$(NAME)

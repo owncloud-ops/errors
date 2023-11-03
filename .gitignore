@@ -3,5 +3,6 @@ embed.go
 
 /bin
 /dist
+/oci
 
 CHANGELOG.md
