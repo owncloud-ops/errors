@@ -64,7 +64,7 @@ Make sure you have a working Go environment, for further reference or a guide ta
 git clone https://github.owncloud.com/owncloud-ops/errors.git
 cd errors
 
-make generate build
+make build
 ./dist/errors --help
 ```
 

@@ -8,22 +8,6 @@ platform:
   arch: amd64
 
 steps:
-  - name: deps
-    image: docker.io/golang:1.21
-    commands:
-      - make deps
-    volumes:
-      - name: godeps
-        path: /go
-
-  - name: generate
-    image: docker.io/golang:1.21
-    commands:
-      - make generate
-    volumes:
-      - name: godeps
-        path: /go
-
   - name: lint
     image: docker.io/golang:1.21
     commands:
@@ -53,49 +37,64 @@ trigger:
 ---
 kind: pipeline
 type: docker
-name: container
+name: build-binaries
 
 platform:
   os: linux
   arch: amd64
 
 steps:
-  - name: generate
-    image: docker.io/golang:1.21
-    commands:
-      - make generate
-    volumes:
-      - name: godeps
-        path: /go
-
   - name: build
-    image: docker.io/golang:1.21
+    image: docker.io/techknowlogick/xgo:go-1.21.x
     commands:
-      - make build
-    volumes:
-      - name: godeps
-        path: /go
-    depends_on:
-      - generate
+      - ln -s /drone/src /source
+      - make release
 
   - name: executable
     image: docker.io/golang:1.21
     commands:
-      - dist/errors --help
-      - dist/errors -v
-    depends_on:
-      - build
+      - $(find dist/ -executable -type f -iname ${DRONE_REPO_NAME}-linux-amd64) --help
 
-  - name: tags
-    image: quay.io/thegeeklab/docker-autotag
-    environment:
-      DOCKER_AUTOTAG_FORCE_LATEST: True
-      DOCKER_AUTOTAG_IGNORE_PRERELEASE: True
-      DOCKER_AUTOTAG_OUTPUT_FILE: .tags
-      DOCKER_AUTOTAG_VERSION: ${DRONE_TAG}
-    depends_on:
-      - executable
+  - name: changelog
+    image: quay.io/thegeeklab/git-chglog
+    commands:
+      - git fetch -tq
+      - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
+      - cat CHANGELOG.md
 
+  - name: publish
+    image: docker.io/plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files:
+        - dist/*
+      note: CHANGELOG.md
+      overwrite: true
+      title: ${DRONE_TAG}
+    when:
+      ref:
+        - refs/tags/**
+
+trigger:
+  ref:
+    - refs/heads/main
+    - refs/tags/**
+    - refs/pull/**
+
+depends_on:
+  - test
+
+---
+kind: pipeline
+type: docker
+name: build-container
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
   - name: security-build
     image: docker.io/owncloudci/drone-docker-buildx:1
     settings:
@@ -109,7 +108,6 @@ steps:
     image: ghcr.io/aquasecurity/trivy
     commands:
       - trivy -v
-      - ls -l oci/${DRONE_REPO_NAME}
       - trivy image --input oci/${DRONE_REPO_NAME}
     environment:
       TRIVY_EXIT_CODE: 1
@@ -120,21 +118,17 @@ steps:
     depends_on:
       - security-build
 
-  - name: changelog
-    image: quay.io/thegeeklab/git-chglog
-    commands:
-      - git fetch -tq
-      - git-chglog --no-color --no-emoji ${DRONE_TAG:---next-tag unreleased unreleased}
-      - git-chglog --no-color --no-emoji -o CHANGELOG.md ${DRONE_TAG:---next-tag unreleased unreleased}
-    depends_on:
-      - security-scan
-
   - name: publish-dockerhub
-    image: docker.io/owncloudci/drone-docker-buildx:1:20
+    image: docker.io/owncloudci/drone-docker-buildx:1
     settings:
-      dockerfile: Dockerfile
+      auto_tag: true
+      dockerfile: Dockerfile.multiarch
       password:
         from_secret: docker_password
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      provenance: false
       repo: owncloudops/${DRONE_REPO_NAME}
       username:
         from_secret: docker_username
@@ -143,14 +137,19 @@ steps:
         - refs/heads/main
         - refs/tags/**
     depends_on:
-      - changelog
+      - security-scan
 
   - name: publish-quay
     image: docker.io/owncloudci/drone-docker-buildx:1
     settings:
-      dockerfile: Dockerfile
+      auto_tag: true
+      dockerfile: Dockerfile.multiarch
       password:
         from_secret: quay_password
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      provenance: false
       registry: quay.io
       repo: quay.io/owncloudops/${DRONE_REPO_NAME}
       username:
@@ -160,22 +159,7 @@ steps:
         - refs/heads/main
         - refs/tags/**
     depends_on:
-      - changelog
-
-  - name: release
-    image: docker.io/plugins/github-release
-    settings:
-      api_key:
-        from_secret: github_token
-      note: CHANGELOG.md
-      overwrite: true
-      title: ${DRONE_TAG}
-    when:
-      ref:
-        - refs/tags/**
-    depends_on:
-      - publish-dockerhub
-      - publish-quay
+      - security-scan
 
 trigger:
   ref:
@@ -240,4 +224,5 @@ trigger:
     - failure
 
 depends_on:
-  - container
+  - build-binaries
+  - build-container
