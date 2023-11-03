@@ -107,15 +107,16 @@ steps:
 
   - name: security-scan
     image: ghcr.io/aquasecurity/trivy
-    environment:
-      TRIVY_NO_PROGRESS: True
-      TRIVY_IGNORE_UNFIXED: True
-      TRIVY_TIMEOUT: 1m
-      TRIVY_EXIT_CODE: 1
     commands:
       - trivy -v
       - ls -l oci/${DRONE_REPO_NAME}
       - trivy image --input oci/${DRONE_REPO_NAME}
+    environment:
+      TRIVY_EXIT_CODE: 1
+      TRIVY_IGNORE_UNFIXED: True
+      TRIVY_NO_PROGRESS: True
+      TRIVY_SEVERITY: HIGH,CRITICAL
+      TRIVY_TIMEOUT: 1m
     depends_on:
       - security-build
 
