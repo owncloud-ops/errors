@@ -22,7 +22,8 @@ COPY --from=build /src/dist/errors /bin/errors
 RUN addgroup -g 1001 -S app && \
     adduser -S -D -H -u 1001 -h /opt/app -s /bin/bash -G app -g app app
 
-RUN apk --update add --no-cache ca-certificates mailcap && \
+RUN apk --update add --no-cache ca-certificates && \
+    apk upgrade --no-cache libcrypto3 libssl3 && \
     mkdir -p /opt/app/data && \
     chown -R app:app /opt/app && \
     chmod 0750 /opt/app/data && \
