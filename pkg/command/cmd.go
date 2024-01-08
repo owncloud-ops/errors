@@ -3,10 +3,10 @@ package command
 import (
 	"fmt"
 
+	"github.com/owncloud-ops/errors/pkg/config"
+	"github.com/owncloud-ops/errors/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	"github.owncloud.com/owncloud-ops/errors/pkg/version"
 )
 
 var (

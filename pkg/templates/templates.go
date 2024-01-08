@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/owncloud-ops/errors/pkg/config"
 	"github.com/rs/zerolog/log"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 )
 
 //go:embed dist/*

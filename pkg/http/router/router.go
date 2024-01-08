@@ -7,15 +7,15 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/owncloud-ops/errors/pkg/config"
+	errorpagesHandler "github.com/owncloud-ops/errors/pkg/http/handler/errorpage"
+	healthHandler "github.com/owncloud-ops/errors/pkg/http/handler/healthz"
+	metricsHandler "github.com/owncloud-ops/errors/pkg/http/handler/metrics"
+	"github.com/owncloud-ops/errors/pkg/http/handler/notfound"
+	"github.com/owncloud-ops/errors/pkg/http/middleware/header"
+	"github.com/owncloud-ops/errors/pkg/http/middleware/metrics"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	errorpagesHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/errorpage"
-	healthHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/healthz"
-	metricsHandler "github.owncloud.com/owncloud-ops/errors/pkg/http/handler/metrics"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/handler/notfound"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/middleware/header"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/middleware/metrics"
 )
 
 const MiddlewareTimeout = 60 * time.Second

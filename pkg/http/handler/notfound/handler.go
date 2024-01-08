@@ -3,8 +3,8 @@ package notfound
 import (
 	"net/http"
 
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/core"
+	"github.com/owncloud-ops/errors/pkg/config"
+	"github.com/owncloud-ops/errors/pkg/http/core"
 )
 
 // NewHandler creates handler missing requests handling.
