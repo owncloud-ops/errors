@@ -13,9 +13,9 @@ FROM docker.io/alpine:3.19@sha256:51b67269f354137895d43f3b3d810bfacd3945438e94dc
 LABEL maintainer="ownCloud DevOps <devops@owncloud.com>"
 LABEL org.opencontainers.image.authors="ownCloud DevOps <devops@owncloud.com>"
 LABEL org.opencontainers.image.title="errors"
-LABEL org.opencontainers.image.url="https://github.owncloud.com/owncloud-ops/errors"
-LABEL org.opencontainers.image.source="https://github.owncloud.com/owncloud-ops/errors"
-LABEL org.opencontainers.image.documentation="https://github.owncloud.com/owncloud-ops/errors"
+LABEL org.opencontainers.image.url="https://github.com/owncloud-ops/errors"
+LABEL org.opencontainers.image.source="https://github.com/owncloud-ops/errors"
+LABEL org.opencontainers.image.documentation="https://github.com/owncloud-ops/errors"
 
 COPY --from=build /src/dist/errors /bin/errors
 

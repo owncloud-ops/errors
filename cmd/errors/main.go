@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.owncloud.com/owncloud-ops/errors/pkg/command"
+	"github.com/owncloud-ops/errors/pkg/command"
 )
 
 func main() {

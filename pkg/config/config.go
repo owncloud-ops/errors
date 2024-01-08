@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/owncloud-ops/errors/pkg/metrics"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.owncloud.com/owncloud-ops/errors/pkg/metrics"
 )
 
 // Server defines the server configuration.

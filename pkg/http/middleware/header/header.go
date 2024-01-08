@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.owncloud.com/owncloud-ops/errors/pkg/version"
+	"github.com/owncloud-ops/errors/pkg/version"
 )
 
 // Cache writes required cache headers to all requests.

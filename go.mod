@@ -1,4 +1,4 @@
-module github.owncloud.com/owncloud-ops/errors
+module github.com/owncloud-ops/errors
 
 go 1.21
 

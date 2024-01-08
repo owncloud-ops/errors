@@ -4,10 +4,10 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/owncloud-ops/errors/pkg/config"
+	"github.com/owncloud-ops/errors/pkg/errors"
+	"github.com/owncloud-ops/errors/pkg/templates"
 	"github.com/rs/zerolog/log"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	"github.owncloud.com/owncloud-ops/errors/pkg/errors"
-	"github.owncloud.com/owncloud-ops/errors/pkg/templates"
 )
 
 // Payload represents the payload for template rendering.

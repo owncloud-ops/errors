@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/owncloud-ops/errors/pkg/config"
+	"github.com/owncloud-ops/errors/pkg/http/core"
 	"github.com/rs/zerolog/log"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/core"
 )
 
 // NewHandler creates handler for error pages serving.

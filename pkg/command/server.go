@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/oklog/run"
+	"github.com/owncloud-ops/errors/pkg/http/router"
+	"github.com/owncloud-ops/errors/pkg/metrics"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.owncloud.com/owncloud-ops/errors/pkg/http/router"
-	"github.owncloud.com/owncloud-ops/errors/pkg/metrics"
 )
 
 var serverCmd = &cobra.Command{

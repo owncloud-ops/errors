@@ -3,8 +3,8 @@ package metrics
 import (
 	"net/http"
 
+	"github.com/owncloud-ops/errors/pkg/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 )
 
 func NewHandler(cfg *config.Config) http.HandlerFunc {

@@ -3,8 +3,8 @@ package errors
 import (
 	"os"
 
+	"github.com/owncloud-ops/errors/pkg/config"
 	"github.com/rs/zerolog/log"
-	"github.owncloud.com/owncloud-ops/errors/pkg/config"
 	"gopkg.in/yaml.v3"
 )
 
