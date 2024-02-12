@@ -40,6 +40,7 @@ func RespondWithErrorPage(
 	case clientWant == JSONContentType: // JSON
 		{
 			errorTemplate = "json.tmpl"
+
 			SetClientFormat(writer, JSONContentType)
 		}
 
