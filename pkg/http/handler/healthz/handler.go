@@ -7,7 +7,7 @@ import (
 
 // NewHandler creates handler for error pages serving.
 func NewHandler() http.HandlerFunc {
-	return func(writer http.ResponseWriter, req *http.Request) {
+	return func(writer http.ResponseWriter, _ *http.Request) {
 		writer.Header().Set("Content-Type", "text/plain")
 		writer.WriteHeader(http.StatusOK)
 
